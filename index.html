@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ultah guru ku tercantik</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: black;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .birthday-wishes {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Abel', Arial, sans-serif;
+            font-size: 20px;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-align: center;
+        }
+        .birthday-image {
+            width: 100px; /* Ukuran gambar */
+            border-radius: 50%; /* Bentuk lingkaran */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Bayangan */
+            position: absolute;
+            top: calc(10% + 3cm); /* Jarak 1 cm dari teks "Selamat Ulang Tahun" */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .floating-text {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .wishes-text {
+            font-family: 'Abel', Arial, sans-serif;
+            font-size: 16px;
+            color: white;
+            animation: floatText 30s linear infinite;
+        }
+        @keyframes floatText {
+            0%   { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .love-cake-container {
+            position: absolute;
+            top: calc(50% + 4cm); /* Jarak 2 cm dari tulisan "Semoga" */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .love-animation, .cake-animation {
+            font-size: 80px; /* Ukuran emoji love dan cake */
+            margin: 10px; /* Jarak antara emoji love dan cake */
+            animation: floatAnimation 5s ease-in-out infinite; /* Animasi */
+        }
+        @keyframes floatAnimation {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="birthday-wishes">
+        <h1>Selamat Ulang Tahun bu guru cantik dan mbk ku wes</h1>
+    </div>
+    <img class="birthday-image" src="p.jpeg" alt="p">
+    <div class="floating-text">
+        <div class="wishes-text">
+            Semoga di tahun 2024 segera mendapatkan jodoh, dan semoga di tahun ini apa yang ingin dicapai bisa tercapai.
+            Doaku yang terbaik bu untukmu wkwkw, panjang umur rezeki lancar wes sembarang kalir lancar,dan semua cita cita nya terwujud, SEMOGA CEPAT MOVE ON JANGAN BODOH DALAM HAL MENCINTAI,
+            INGAT OJOK LALI AKU LEK WES OLEH JODOHHHs
+        </div>
+    </div>
+    <div class="love-cake-container">
+        <span class="love-animation" aria-hidden="true">❤️</span>
+        <span class="cake-animation" aria-hidden="true">🎂</span>
+    </div>
+    
+    <canvas id="fireworksCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById('fireworksCanvas');
+        var ctx = canvas.getContext('2d');
+        var fireworks = [];
+        var gravity = 0.2;
+
+        function Vector(x, y) {
+            this.x = x;
+            this.y = y;
+            this.add = function(vec2) {
+                this.x += vec2.x;
+                this.y += vec2.y;
+            }
+        }
+
+        function Particle(pos, vel) {
+            this.pos = new Vector(pos.x, pos.y);
+            this.vel = vel;
+            this.finished = false;
+            this.startTime = 0;
+
+            this.update = function(time) {
+                var timeSpan = time - this.startTime;
+                if (timeSpan > 2000) {
+                    this.finished = true;
+                }
+                if (!this.finished) {
+                    this.pos.add(this.vel);
+                    this.vel.y += gravity;
+                }
+            };
+
+            this.draw = function() {
+                if (!this.finished) {
+                    drawDot(this.pos.x, this.pos.y, 1);
+                }
+            }
+        }
+
+        function Firework(x, y) {
+            this.pos = new Vector(x, y);
+            this.vel = new Vector(0, -randomNum(2) - 1);
+            this.color = 'hsl(' + randomNum(360) + ', 100%, 50%)';
+            this.size = 4;
+            this.finished = false;
+            this.startTime = 0;
+            var explosionParticles = [];
+            var explosionParticleCount = 100;
+            var rootShown = true;
+
+            this.update = function(time) {
+                if (this.finished) {
+                    return;
+                }
+                rootShown = this.vel.y < 0;
+                if (rootShown) {
+                    this.pos.add(this.vel);
+                    this.vel.y += gravity;
+                } else {
+                    if (explosionParticles.length === 0) {
+                        for (var i = 0; i < explosionParticleCount; i++) {
+                            explosionParticles.push(new Particle(this.pos, new Vector(-randomNum(10) + 5, -randomNum(10) + 5)));
+                            explosionParticles[explosionParticles.length - 1].startTime = time;
+                        }
+                    }
+                    var finishedCount = 0;
+                    for (var i = 0; i < explosionParticleCount; i++) {
+                        var p = explosionParticles[i];
+                        p.update(time);
+                        if (p.finished) {
+                            finishedCount++;
+                        }
+                    }
+                    if (finishedCount === explosionParticleCount) {
+                        this.finished = true;
+                    }
+                }
+            }
+
+            this.draw = function() {
+                if (this.finished) {
+                    return;
+                }
+                ctx.fillStyle = this.color;
+                if (rootShown) {
+                    drawDot(this.pos.x, this.pos.y, this.size);
+                } else {
+                    for (var i = 0; i < explosionParticleCount; i++) {
+                        var p = explosionParticles[i];
+                        p.draw();
+                    }
+                }
+            }
+        }
+
+        function drawDot(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function randomNum(num) {
+            return Math.random() * num + 1;
+        }
+
+        function init() {
+            var numFireworks = 20;
+            for (var i = 0; i < numFireworks; i++) {
+                fireworks.push(new Firework(randomNum(canvas.width), canvas.height));
+            }
+        }
+
+        function update(time) {
+            for (var i = 0, len = fireworks.length; i < len; i++) {
+                var fw = fireworks[i];
+                fw.update(time);
+            }
+        }
+
+        function draw(time) {
+            update(time);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            for (var i = 0, len = fireworks.length; i < len; i++) {
+                var fw = fireworks[i];
+                if (fw.finished) {
+                    fireworks[i] = new Firework(randomNum(canvas.width), canvas.height);
+                    fw = fireworks[i];
+                    fw.startTime = time;
+                }
+                fw.draw();
+            }
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        init();
+        draw();
+    </script>
+</body>
+</html>
